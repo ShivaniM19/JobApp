@@ -5,36 +5,70 @@ import com.vani.JobApp.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class JobController {
     @Autowired
-    JobService service;
+    JobService jobService;
 
-    @GetMapping({"/", "home"})
-    public String home() {
-        return "home";
+//    If we want output/produce in only json format add key=Accept & value=application/json in header of postman request and @GetMapping(path = "jobPosts",produces = {"application/json"})
+
+//    @GetMapping(path = "jobPosts",produces = {"application/json"})
+//    public List<JobPost> getAllJob() {
+//        return jobService.getAllJobs();
+//    }
+
+//   If we to get output in xml format add jackson Dataformat xml dependency with version mentioned in external library jackson-Dataformat-xml
+
+    @GetMapping("jobPosts")
+    public List<JobPost> getAllJob() {
+        return jobService.getAllJobs();
     }
 
-    @GetMapping("addjob")
-    public String addJob() {
-        return "addjob";
+//    @GetMapping("jobPost/{postId}")
+//    public JobPost getJob(@PathVariable("postId") int postId){
+//        return jobService.getJobById(postId);
+//    }
+
+    @GetMapping("jobPost/{postId}")
+    public JobPost getJobById(@PathVariable int postId){
+            return jobService.getJobById(postId);
+        }
+
+    @PostMapping("jobPost")
+    public String addJob(@RequestBody JobPost jobPost) {
+        jobService.addJob(jobPost);
+        return "added";
     }
 
-    @PostMapping("handleForm")
-    public String handleForm(JobPost jobPost) {
-        service.addJob(jobPost);
-        return "success";
+//    @PostMapping("jobPost")
+//    public JobPost addJob(@RequestBody JobPost jobPost) {
+//        jobService.addJob(jobPost);
+//        return jobPost;
+//    }
+
+//    If we want to consume/send  only xml data add
+
+//    @PostMapping(path = "jobPost", consumes = {"application/xml"})
+//    public JobPost addJob(@RequestBody JobPost jobPost) {
+//        jobService.addJob(jobPost);
+//        return jobPost;
+//    }
+
+    @PutMapping("jobPost")
+    public JobPost updateJob(@RequestBody JobPost jobPost){
+        jobService.updateJob(jobPost);
+        return jobService.getJobById(jobPost.getPostId());
     }
 
-    @GetMapping("viewalljobs")
-    public String viewAllJob(Model m) {
-        List<JobPost> jobs = service.getAllJobs();
-        m.addAttribute("jobPosts", jobs);
-        return "viewalljobs";
+    @DeleteMapping("jobPost/{postId}")
+    public String deleteJob(@PathVariable int postId){
+        jobService.deleteJod(postId);
+        return "deleted";
     }
+
 }
